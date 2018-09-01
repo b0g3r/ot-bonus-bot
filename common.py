@@ -36,11 +36,12 @@ async def check_voting_end():
         candidates = (await participant_state.get_data())['candidates']
         for id, (_, bonus) in candidates.items():
             result[id] += bonus
-    average_bonus = sum(p[1] for p in participants.values())/len(participants)
-    for participant_id, bonus in result.items():
-        await bot.send_message(participant_id, 'Твоя премия: {0}. Средняя премия {1}'.format(
-            bonus,
-            average_bonus
+    for participant_id, calc_bonus in result.items():
+        participant_state = dp.current_state(chat=participant_id, user=participant_id)
+        full_bonus = (await participant_state.get_data())['bonus']
+        await bot.send_message(participant_id, 'Твоя премия: {0}. У тебя было {1}'.format(
+            calc_bonus,
+            full_bonus
         ))
     await bot.send_message(
         config.ADMIN_ID,
